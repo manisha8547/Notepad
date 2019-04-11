@@ -143,4 +143,20 @@ public class Database {
 
     }
 
+    public static List<ToDo> getDeletedTask() {
+
+        openReadable();
+
+        return sqlhelper.getDeletedTask();
+    }
+
+    public static int exeUpdateQuery(String employees, ContentValues values, String s) {
+
+        openWritable();
+
+        return sqlhelper.exeUpdateQuery(employees, values, s);
+
+    }
+
+
 }

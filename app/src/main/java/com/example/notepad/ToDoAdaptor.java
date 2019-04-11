@@ -1,6 +1,9 @@
 package com.example.notepad;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -27,48 +30,68 @@ public class ToDoAdaptor extends RecyclerView.Adapter<ToDoAdaptor.ViewHolder> {
 
     OnCallBack callback;
 
-    public ToDoAdaptor(Context context,List<ToDo> toDoList) {
+    int type = 0;
+
+    public ToDoAdaptor(Context context,List<ToDo> toDoList ,int type) {
 
         this.context = context;
         this.toDoList = toDoList;
+        this.type  = type;
 
         if (context instanceof OnCallBack) {
+
             callback        =   (OnCallBack) context;
         } else {
             throw new RuntimeException(context.toString() + " must implement OnFragmentInteractionListener");
         }
     }
 
+    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
 
-        ViewHolder viewHolder;
+      //  ViewHolder viewHolder;
 
-        View view;
+        View view = null;
 
-        view = LayoutInflater.from(context).inflate(R.layout.list_todo,null);
+        if(type == 1){
 
-        viewHolder = new ViewHolder(view);
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_todo, parent, false);
 
-        return viewHolder;
+        }else if(type == 2){
+
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_delete_todo, parent, false);
+
+        }
+
+       // view = LayoutInflater.from(context).inflate(R.layout.list_todo,null);
+
+        return new ViewHolder(view);
+
+
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
 
          final ToDo files = toDoList.get(position);
+
          holder.bind(files, position);
 
-            /*    holder.itemView.setOnClickListener(new View.OnClickListener() {
+                holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Log.d(TAG, "onClick:RESULT "+files.getFilePath());
-                        callback.addPdfFile(files);
+
+                        if(type ==2){
+
+                            callback.deleteList(files);
+
+                        }
+
 
                     }
                 });
-        */
 
     }
 
@@ -88,17 +111,34 @@ public class ToDoAdaptor extends RecyclerView.Adapter<ToDoAdaptor.ViewHolder> {
 
         }
 
-        public void bind( final ToDo files,int position) {
+        public void bind(final ToDo files, int position) {
 
             title.setText(files.getTask());
+
+            if(type == 2){
+
+                title.setTextColor(R.color.gray);
+                title.setPaintFlags(title.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+
+            }
+
 
             checkBox.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
 
-                    callback.deletelist(files);
+                    if(type == 1){
 
-                    Toast.makeText(context,"Deleted..!",Toast.LENGTH_SHORT).show();
+                        callback.updateList(files);
+
+                        Toast.makeText(context,"Deleted..!",Toast.LENGTH_SHORT).show();
+
+                    }else {
+
+                        callback.deleteList(files);
+
+                    }
+
 
 
                 }
@@ -122,7 +162,9 @@ public class ToDoAdaptor extends RecyclerView.Adapter<ToDoAdaptor.ViewHolder> {
     }
 
     public interface OnCallBack {
-        void deletelist(ToDo toDo);
 
+        void updateList(ToDo toDo);
+
+        void deleteList(ToDo toDo);
     }
-}
+ }

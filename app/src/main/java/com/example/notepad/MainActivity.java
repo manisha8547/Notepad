@@ -1,6 +1,7 @@
 package com.example.notepad;
 
 import android.content.ActivityNotFoundException;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.speech.RecognizerIntent;
 import android.support.v7.app.AlertDialog;
@@ -27,17 +28,25 @@ public class MainActivity extends AppCompatActivity implements ToDoAdaptor.OnCal
 
     private RecyclerView listsView;
 
+    private RecyclerView deteteListsView;
+
     LinearLayoutManager llm;
+
+    LinearLayoutManager llm1;
 
     ImageButton addToDo;
 
     ToDoAdaptor adaptor ;
+
+    ToDoAdaptor adaptorNew ;
 
   //  TextView blankListText;
 
     EditText edTodo ;
 
     List<ToDo> toDoList =new ArrayList<ToDo>();
+
+    List<ToDo> deletedList =new ArrayList<ToDo>();
 
     private final int REQ_CODE_SPEECH_INPUT = 100;
 
@@ -49,6 +58,8 @@ public class MainActivity extends AppCompatActivity implements ToDoAdaptor.OnCal
         setContentView(R.layout.activity_main);
 
         listsView           =   (RecyclerView) findViewById(R.id.todo_list);
+
+        deteteListsView     =   (RecyclerView) findViewById(R.id.todo_delete_list);
 
         addToDo             =    findViewById(R.id.button);
 
@@ -66,10 +77,13 @@ public class MainActivity extends AppCompatActivity implements ToDoAdaptor.OnCal
             }
         });
 
-        llm = new LinearLayoutManager(MainActivity.this);
+        llm  = new LinearLayoutManager(MainActivity.this);
+
+        llm1 = new LinearLayoutManager(MainActivity.this);
 
         listsView.setLayoutManager(llm);
 
+        deteteListsView.setLayoutManager(llm1);
 
 
     }
@@ -104,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements ToDoAdaptor.OnCal
                if(!edTodo.getText().toString().equals("")){
 
                    toDo.setTask(edTodo.getText().toString());
-                   toDo.setStatus(1);
+                   toDo.setStatus(0);
                    Database.addToDoItem(toDo);
                    dialogBuilder.dismiss();
                    onResume();
@@ -161,12 +175,16 @@ public class MainActivity extends AppCompatActivity implements ToDoAdaptor.OnCal
 
         toDoList =Database.getList();
 
+        deletedList = Database.getDeletedTask();
+
+        Log.d("DELETEDD","=>"+deletedList.size() + " "+deletedList.size());
 
         if(adaptor == null){
 
-            adaptor =   new ToDoAdaptor(MainActivity.this, toDoList);
+            adaptor =   new ToDoAdaptor(MainActivity.this, toDoList,1);
 
             listsView.setAdapter(adaptor);
+
 
         } else {
 
@@ -176,17 +194,53 @@ public class MainActivity extends AppCompatActivity implements ToDoAdaptor.OnCal
 
         }
 
+        adaptorNew = new ToDoAdaptor(MainActivity.this,deletedList,2);
+
+        deteteListsView.setAdapter(adaptorNew);
 
 
     }
 
     @Override
-    public void deletelist(ToDo toDo) {
+    public void updateList(ToDo toDo) {
 
-        Database.deleteQuery("toDo", "id = "+ toDo.getId());
+        ContentValues values    =   new ContentValues();
+
+        values.put("status", 1);
+
+        Database.exeUpdateQuery("toDo",values,"id = "+toDo.getId());
+
+       // Database.deleteQuery("toDo", "id = "+ toDo.getId());
 
         onResume();
 
+    }
+
+    @Override
+    public void deleteList(final ToDo toDo) {
+
+        final AlertDialog dialogBuilder = new AlertDialog.Builder(this).create();
+
+        dialogBuilder.setCancelable(false);
+
+        LayoutInflater inflater = this.getLayoutInflater();
+
+        View dialogView = inflater.inflate(R.layout.custom_delete_dialog, null);
+
+        Button remove       = (Button) dialogView.findViewById(R.id.remove_button);
+
+        remove.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Database.deleteQuery("toDo", "id = "+ toDo.getId());
+                dialogBuilder.dismiss();
+                onResume();
+            }
+        });
+
+        dialogBuilder.setView(dialogView);
+        dialogBuilder.show();
     }
 
 

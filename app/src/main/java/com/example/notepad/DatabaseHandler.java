@@ -479,7 +479,7 @@ class DatabaseHandler extends SQLiteOpenHelper {
 
         String condition = "";
 
-        String selectQuery = "SELECT id, title, status FROM toDo ORDER BY id ASC ";
+        String selectQuery = "SELECT id, title, status FROM toDo WHERE status = 0 ORDER BY id ASC ";
 
         Cursor cursor = db.rawQuery(selectQuery, null);
 
@@ -570,6 +570,56 @@ class DatabaseHandler extends SQLiteOpenHelper {
         return toDo;
 
     }
+
+    public List<ToDo> getDeletedTask() {
+
+        if (!checkTableExists("toDo")) {
+            createTable("toDo");
+        }
+
+        String condition = "where status = "+1;
+
+
+        List<ToDo> toDoList = new ArrayList<ToDo>();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String selectQuery = " SELECT  id ,title, status FROM toDo "+ condition +" ORDER BY id ASC" ;
+
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        if (cursor.getCount() > 0) {
+
+            if (cursor.moveToFirst()) {
+
+                do {
+
+                    ToDo toDo = new ToDo();
+                    toDo.setId(cursor.getInt(0));
+                    toDo.setTask(cursor.getString(1));
+                    toDo.setStatus(cursor.getInt(2));
+
+                    toDoList.add(toDo);
+
+                } while (cursor.moveToNext());
+
+            }
+
+        }
+        try {
+            cursor.close();
+        } catch (Exception ex) {
+
+        }
+
+        try {
+            db.endTransaction();
+        } catch (Exception endEx) {
+
+        }
+        return toDoList;
+    }
+
 
 
 

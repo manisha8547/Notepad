@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -7,13 +7,33 @@
     android:layout_height="match_parent"
     android:background="@drawable/color_gradient_timber">
 
-    <android.support.v7.widget.RecyclerView
-
-        android:id="@+id/todo_list"
-        android:layout_marginTop="20dp"
+    <android.support.v4.widget.NestedScrollView
+        android:id="@+id/activity_main"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-    </android.support.v7.widget.RecyclerView>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/todo_list"
+                android:layout_marginTop="20dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+            </android.support.v7.widget.RecyclerView>
+
+            <android.support.v7.widget.RecyclerView
+                android:layout_below="@id/todo_list"
+                android:id="@+id/todo_delete_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+            </android.support.v7.widget.RecyclerView>
+
+        </RelativeLayout>
+
+
+    </android.support.v4.widget.NestedScrollView>
 
     <ImageButton
         android:id="@+id/button"
@@ -22,6 +42,8 @@
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="25dp"
         android:layout_marginBottom="25dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
         android:background="#1a2b5d"
         android:src="@drawable/edit"/>
 
@@ -33,4 +55,4 @@
         android:textColor="#ffffff"
         android:gravity="center_vertical|center_horizontal"
         android:text="Add Your Task Here..!"/>-->
-</android.support.design.widget.CoordinatorLayout>
+</RelativeLayout>
